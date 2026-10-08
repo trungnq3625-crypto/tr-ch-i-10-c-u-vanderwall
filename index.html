@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Đấu Trường Hóa Học: Tương Tác Van der Waals Chuẩn Xác</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; touch-action: manipulation; }
+    body, html { margin: 0; padding: 0; background-color: #060913; color: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; }
+    .correct-anim { animation: correctGlow 0.4s ease; }
+    @keyframes correctGlow {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+    .wrong-anim { animation: shake 0.35s ease; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-2 md:p-4">
+
+  <!-- Header -->
+  <header class="max-w-4xl w-full mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl px-4 py-2.5 flex items-center justify-between shadow-xl mb-3 shrink-0">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white text-base shadow-md">
+        <i class="fa-solid fa-atom animate-spin" style="animation-duration: 9s;"></i>
+      </div>
+      <div>
+        <h1 class="text-xs md:text-sm font-black tracking-wide bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent uppercase">
+          Van der Waals & Cấu Trúc Hạt Chuẩn Xác
+        </h1>
+        <p class="text-[10px] text-slate-400">Trắc nghiệm tương tác & 10 mô phỏng động chuyên biệt</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="bg-slate-950 px-3 py-1 rounded-full border border-slate-800 text-[11px] font-bold text-indigo-300">
+        Mã đề: <span id="headerCodeDisplay" class="text-cyan-400 font-extrabold">101</span>
+      </div>
+      <button id="soundToggle" class="text-slate-400 hover:text-white transition p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs">
+        <i class="fa-solid fa-volume-high" id="soundIcon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-4xl w-full mx-auto flex-1 flex flex-col justify-center">
+
+    <!-- 1. MÀN HÌNH CHỌN MÃ ĐỀ & BẮT ĐẦU -->
+    <section id="startScreen" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 text-center shadow-2xl relative overflow-hidden my-auto">
+      <div class="inline-flex p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl mb-3 text-cyan-400 text-2xl">
+        <i class="fa-solid fa-microscope"></i>
+      </div>
+      <h2 class="text-xl md:text-2xl font-black text-white mb-2">Thử Thách Khám Phá Lực Van der Waals</h2>
+      <p class="text-slate-400 text-xs md:text-sm max-w-lg mx-auto mb-6">
+        Bộ 10 câu hỏi chuẩn hóa (lý thuyết & ứng dụng thực tiễn). Mỗi câu sau khi chọn sẽ mở ra <strong>mô phỏng tương tác chuyên biệt</strong> với cơ chế biến dạng đám mây elip và lệch trọng tâm hạt nhân chuẩn xác.
+      </p>
+
+      <!-- Chọn mã đề -->
+      <div class="max-w-xs mx-auto mb-6 bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-center">
+        <span class="text-[11px] font-bold uppercase text-slate-400 tracking-wider block mb-2">Chọn Mã Đề Bài Thi</span>
+        <div class="grid grid-cols-4 gap-2">
+          <button onclick="selectCode(101)" class="code-btn py-2 rounded-xl text-xs font-bold border transition bg-indigo-600 border-indigo-400 text-white" data-code="101">101</button>
+          <button onclick="selectCode(102)" class="code-btn py-2 rounded-xl text-xs font-bold border transition bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700" data-code="102">102</button>
+          <button onclick="selectCode(103)" class="code-btn py-2 rounded-xl text-xs font-bold border transition bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700" data-code="103">103</button>
+          <button onclick="selectCode(104)" class="code-btn py-2 rounded-xl text-xs font-bold border transition bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700" data-code="104">104</button>
+        </div>
+      </div>
+
+      <button onclick="startGame()" class="px-7 py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-500/30 transition active:scale-95">
+        Bắt Đầu Làm Bài <i class="fa-solid fa-play ml-1.5"></i>
+      </button>
+    </section>
+
+    <!-- 2. MÀN HÌNH CHƠI GAME & MÔ PHỎNG -->
+    <section id="gameScreen" class="hidden flex-col gap-3">
+
+      <!-- Thanh chỉ số -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl px-4 py-2 flex items-center justify-between text-xs font-bold shadow">
+        <div class="text-cyan-400">Câu <span id="qTracker">1/10</span></div>
+        <div class="flex-1 max-w-xs h-2 bg-slate-800 rounded-full overflow-hidden mx-3">
+          <div id="progBar" class="h-full bg-gradient-to-r from-cyan-400 to-indigo-500 transition-all duration-300 w-0"></div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-emerald-400"><i class="fa-solid fa-trophy mr-1"></i><span id="scoreVal">0</span></span>
+          <span class="text-amber-400"><i class="fa-solid fa-fire mr-1"></i><span id="streakVal">0</span></span>
+        </div>
+      </div>
+
+      <!-- Khung câu hỏi & phương án -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-5 shadow-xl">
+        <h3 id="questionTitle" class="text-sm md:text-base font-bold text-slate-100 mb-3.5 leading-relaxed">
+          Đang tải nội dung...
+        </h3>
+
+        <div id="optionsWrap" class="grid grid-cols-1 gap-2.5">
+          <!-- Render danh sách lựa chọn A, B, C, D -->
+        </div>
+
+        <!-- KHUNG MÔ PHỎNG TƯƠNG TÁC CHUYÊN BIỆT -->
+        <div id="simPanel" class="hidden mt-4 pt-4 border-t border-slate-800 flex flex-col gap-3">
+
+          <div class="flex items-center justify-between">
+            <span id="resultLabel" class="text-xs font-bold px-3 py-1 rounded-lg"></span>
+            <span id="simTopicBadge" class="text-[11px] text-cyan-400 font-semibold tracking-wide flex items-center gap-1.5">
+              <i class="fa-solid fa-flask text-xs"></i> <span>Mô phỏng minh họa</span>
+            </span>
+          </div>
+
+          <!-- Viewport Canvas -->
+          <div class="w-full h-64 md:h-72 bg-[#0b1120] border border-slate-800 rounded-xl relative overflow-hidden flex items-center justify-center shadow-inner" id="simViewer">
+            <!-- Canvas động được sinh tự động -->
+          </div>
+
+          <!-- Thanh điều khiển tương tác -->
+          <div id="simControls" class="flex flex-wrap items-center justify-between gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-xs">
+            <div id="simControlsButtons" class="flex items-center gap-2"></div>
+            <div id="simStatusMsg" class="text-[11px] text-slate-300 italic"></div>
+          </div>
+
+          <!-- Lời giải thích khoa học -->
+          <div id="explainText" class="text-xs text-slate-300 bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 leading-relaxed">
+            <!-- Nội dung giải thích khoa học -->
+          </div>
+
+          <div class="flex justify-end pt-1">
+            <button onclick="handleNextQuestion()" class="px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow transition active:scale-95 flex items-center gap-1.5">
+              <span>Câu kế tiếp</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- 3. MÀN HÌNH TỔNG KẾT KẾT QUẢ -->
+    <section id="resultScreen" class="hidden bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 text-center shadow-2xl my-auto">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl text-amber-400 mb-3">
+        <i class="fa-solid fa-crown"></i>
+      </div>
+      <h2 class="text-xl md:text-2xl font-black text-white mb-1">Kết Quả Bài Làm</h2>
+      <p class="text-xs text-slate-400 mb-5">Mã đề: <span id="resCode" class="font-bold text-cyan-400">101</span></p>
+
+      <div class="grid grid-cols-3 gap-3 max-w-sm mx-auto mb-6">
+        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 uppercase font-semibold">Điểm số</span>
+          <div id="resScore" class="text-xl font-black text-cyan-400">0</div>
+        </div>
+        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 uppercase font-semibold">Đúng</span>
+          <div id="resCorrect" class="text-xl font-black text-emerald-400">0/10</div>
+        </div>
+        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 uppercase font-semibold">Max Combo</span>
+          <div id="resStreak" class="text-xl font-black text-amber-400">0</div>
+        </div>
+      </div>
+
+      <div class="flex justify-center gap-3">
+        <button onclick="startGame()" class="px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-bold text-xs rounded-xl shadow">
+          <i class="fa-solid fa-rotate-right mr-1"></i> Làm lại đề này
+        </button>
+        <button onclick="goMenu()" class="px-5 py-2.5 bg-slate-800 text-slate-300 font-bold text-xs rounded-xl border border-slate-700">
+          <i class="fa-solid fa-bars mr-1"></i> Đổi mã đề
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="text-center text-[10px] text-slate-500 py-2">
+    Tương tác Van der Waals • Hóa Học 10 GDPT 2018
+  </footer>
+
+  <script>
+    // --- Âm thanh Synthesizer Web Audio ---
+    let audioCtx = null;
+    let isSoundOn = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    document.getElementById('soundToggle').onclick = () => {
+      isSoundOn = !isSoundOn;
+      document.getElementById('soundIcon').className = isSoundOn ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark text-red-400';
+    };
+
+    function tone(freq, type, dur) {
+      if (!isSoundOn) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
+      } catch(e) {}
+    }
+
+    function soundRight() {
+      tone(520, 'triangle', 0.1);
+      setTimeout(() => tone(660, 'triangle', 0.12), 70);
+      setTimeout(() => tone(790, 'triangle', 0.2), 140);
+    }
+    function soundWrong() {
+      tone(260, 'sawtooth', 0.12);
+      setTimeout(() => tone(200, 'sawtooth', 0.2), 90);
+    }
+
+    // --- BỘ 10 CÂU HỎI VỚI 10 MÔ PHỎNG ĐỘNG CHUẨN XÁC ---
+    const QUESTIONS_DATA = [
+      {
+        id: 1,
+        question: "Sự phân bố electron không đồng đều trong một nguyên tử hay một phân tử hình thành nên:",
+        options: [
+          { key: "A", text: "một ion dương." },
+          { key: "B", text: "một ion âm." },
+          { key: "C", text: "một lưỡng cực vĩnh viễn." },
+          { key: "D", text: "một lưỡng cực tạm thời." }
+        ],
+        correct: "D",
+        simType: "sim_q1",
+        topicTitle: "Cơ chế hình thành lưỡng cực tạm thời",
+        explanation: "Các electron luôn chuyển động không ngừng. Tại một khoảnh khắc ngẫu nhiên, đám mây electron dạt lệch sang một phía khiến <strong>trọng tâm điện tích âm dời khỏi hạt nhân (+)</strong>. Hạt nhân (+) cố định bị lộ ra ở đầu bên trái mang điện tích dương (δ+), đầu bên phải tích tụ electron mang điện tích âm (δ-), sinh ra <strong>lưỡng cực tạm thời</strong>."
+      },
+      {
+        id: 2,
+        question: "Tương tác van der Waals là loại tương tác được hình thành do đâu?",
+        options: [
+          { key: "A", text: "Lực hút tĩnh điện giữa ion dương và ion âm." },
+          { key: "B", text: "Cặp electron chung góp phần giữa hai phi kim." },
+          { key: "C", text: "Lực hút tĩnh điện giữa các lưỡng cực tạm thời và lưỡng cực cảm ứng giữa các phân tử." },
+          { key: "D", text: "Liên kết giữa nguyên tử hydrogen với các nguyên tử có độ âm điện lớn." }
+        ],
+        correct: "C",
+        simType: "sim_q2",
+        topicTitle: "Cơ chế lưỡng cực cảm ứng & lực hút Van der Waals",
+        explanation: "Khi lưỡng cực tạm thời xuất hiện, đầu tích điện âm (δ-) của nó đẩy đám mây electron của phân tử bên cạnh dạt ra xa, làm hạt nhân của phân tử đó bị lộ ra tạo thành <strong>lưỡng cực cảm ứng</strong>. Hai cực trái dấu hút nhau bằng lực hút tĩnh điện yếu gọi là tương tác Van der Waals."
+      },
+      {
+        id: 3,
+        question: "Khí hiếm nào dưới đây có nhiệt độ sôi thấp nhất?",
+        options: [
+          { key: "A", text: "Ne." },
+          { key: "B", text: "Xe." },
+          { key: "C", text: "Ar." },
+          { key: "D", text: "Kr." }
+        ],
+        correct: "A",
+        simType: "sim_q3",
+        topicTitle: "So sánh độ biến dạng đám mây electron các khí hiếm",
+        explanation: "Neon (Ne) có kích thước rất nhỏ và chỉ có 10 electron nên đám mây electron sít sao, rất khó bị biến dạng ➔ lực tương tác Van der Waals yếu nhất ➔ <strong>Ne có nhiệt độ sôi thấp nhất (-246°C)</strong>."
+      },
+      {
+        id: 4,
+        question: "Tương tác Van der Waals tồn tại giữa những:",
+        options: [
+          { key: "A", text: "ion." },
+          { key: "B", text: "hạt proton." },
+          { key: "C", text: "hạt neutron." },
+          { key: "D", text: "phân tử." }
+        ],
+        correct: "D",
+        simType: "sim_q4",
+        topicTitle: "Phân biệt tương tác liên phân tử vs liên kết ion",
+        explanation: "Tương tác Van der Waals là lực hút gian phân tử giữa các phân tử trung hòa độc lập, hoàn toàn khác với lực hút tĩnh điện mạng tinh thể ion của các ion trái dấu."
+      },
+      {
+        id: 5,
+        question: "Giữa các nguyên tử He có thể có loại liên kết nào?",
+        options: [
+          { key: "A", text: "Liên kết cộng hoá trị." },
+          { key: "B", text: "Liên kết hydrogen." },
+          { key: "C", text: "Tương tác van der Waals." },
+          { key: "D", text: "Không có bất kì liên kết nào." }
+        ],
+        correct: "C",
+        simType: "sim_q5",
+        topicTitle: "Khoảnh khắc xuất hiện lực phân tán London ở nguyên tử He",
+        explanation: "Heli (He) là khí trơ với cấu hình 1s² bền vững. Khi hạ nhiệt độ xuống rất thấp gần độ 0 tuyệt đối (-269°C), sự lệch ngẫu nhiên của 2 electron tạo ra lực phân tán London (tương tác Van der Waals) đủ để giữ các nguyên tử He ngưng tụ thành chất lỏng."
+      },
+      {
+        id: 6,
+        question: "Dựa vào liên kết giữa các phân tử, hãy cho biết halogen nào sau đây có nhiệt độ sôi cao nhất?",
+        options: [
+          { key: "A", text: "F2." },
+          { key: "B", text: "Cl2." },
+          { key: "C", text: "Br2." },
+          { key: "D", text: "I2." }
+        ],
+        correct: "D",
+        simType: "sim_q6",
+        topicTitle: "Độ phân cực cảm ứng & trạng thái của 4 Halogen",
+        explanation: "Từ F₂ đến I₂, số electron tăng vọt (I₂ có tới 106 electron) khiến đám mây electron rất cồng kềnh và cực kỳ dễ bị xô lệch ➔ lực Van der Waals mạnh nhất ➔ <strong>I₂ có nhiệt độ sôi cao nhất (184°C, thể rắn ở nhiệt độ thường)</strong>."
+      },
+      {
+        id: 7,
+        question: "Thứ tự nào sau đây thể hiện độ mạnh giảm dần của các loại liên kết?",
+        options: [
+          { key: "A", text: "Liên kết ion > liên kết cộng hoá trị > liên kết hydrogen > tương tác Van der Waals." },
+          { key: "B", text: "Liên kết ion > liên kết cộng hoá trị > tương tác Van der Waals > liên kết hydrogen." },
+          { key: "C", text: "Liên kết cộng hoá trị > liên kết ion > liên kết hydrogen > tương tác Van der Waals." },
+          { key: "D", text: "Tương tác Van der Waals > liên kết hydrogen > liên kết cộng hoá trị > liên kết ion." }
+        ],
+        correct: "A",
+        simType: "sim_q7",
+        topicTitle: "Đo năng lượng bẻ gãy các liên kết (kJ/mol)",
+        explanation: "Liên kết hóa học nội phân tử (ion, cộng hóa trị: hàng trăm kJ/mol) bền hơn nhiều so với liên kết liên phân tử. Trong đó liên kết hydrogen (~10 - 40 kJ/mol) bền hơn tương tác Van der Waals (~1 - 10 kJ/mol)."
+      },
+      {
+        id: 8,
+        question: "Tương tác van der Waals có ảnh hưởng như thế nào đến tính chất vật lý của các chất?",
+        options: [
+          { key: "A", text: "Làm giảm nhiệt độ nóng chảy và nhiệt độ sôi của chất." },
+          { key: "B", text: "Làm tăng nhiệt độ nóng chảy và nhiệt độ sôi của chất." },
+          { key: "C", text: "Làm thay đổi hoàn toàn thành phần hóa học của chất." },
+          { key: "D", text: "Không ảnh hưởng đến nhiệt độ sôi." }
+        ],
+        correct: "B",
+        simType: "sim_q8",
+        topicTitle: "Nhiệt năng phá vỡ tương tác Van der Waals khi sôi",
+        explanation: "Lực Van der Waals giữ các phân tử hút dính vào nhau ở pha lỏng. Tương tác càng mạnh thì càng cần cung cấp năng lượng nhiệt lớn hơn để thắng lực hút này ➔ <strong>Làm tăng nhiệt độ nóng chảy và nhiệt độ sôi</strong>."
+      },
+      {
+        id: 9,
+        question: "Loài tắc kè có khả năng bám dính và leo thoăn thoắt trên mặt kính nhẵn bóng thẳng đứng mà không cần chất keo dính là nhờ cơ chế nào?",
+        options: [
+          { key: "A", text: "Các đầu ngón chân có giác hút chân không cực mạnh với bề mặt phẳng." },
+          { key: "B", text: "Hàng triệu sợi lông siêu vi (spatulae) tạo diện tích tiếp xúc khổng lồ, phát sinh tương tác Van der Waals cực lớn." },
+          { key: "C", text: "Lớp sừng chân tạo liên kết ion tức thời với bề mặt kính." },
+          { key: "D", text: "Hình thành liên kết hydrogen giữa da chân và hơi ẩm không khí." }
+        ],
+        correct: "B",
+        simType: "sim_q9",
+        topicTitle: "Tiếp xúc nanomet của sợi lông chân tắc kè với mặt kính",
+        explanation: "Đầu ngón chân tắc kè có hàng triệu sợi lông siêu vi kích thước nanomet. Khi ép sát mặt kính, khoảng cách giữa các phân tử lông và bề mặt kính đạt mức nanomet, phát sinh hàng triệu lực Van der Waals cực nhỏ cộng dồn lại đủ để nâng toàn bộ cơ thể tắc kè."
+      },
+      {
+        id: 10,
+        question: "Băng phiến (long não) và tinh thể iodine (I₂) có hiện tượng thăng hoa (từ thể rắn chuyển trực tiếp thành thể khí) ở điều kiện thường là do:",
+        options: [
+          { key: "A", text: "Các chất trên có mạng tinh thể nguyên tử kim loại." },
+          { key: "B", text: "Liên kết cộng hóa trị bên trong phân tử bị đứt gãy hoàn toàn." },
+          { key: "C", text: "Mạng tinh thể phân tử được giữ bởi các tương tác Van der Waals yếu, dễ bị bứt phá bởi dao động nhiệt." },
+          { key: "D", text: "Chúng tác dụng hóa học tức thì với khí oxi trong không khí." }
+        ],
+        correct: "C",
+        simType: "sim_q10",
+        topicTitle: "Thăng hoa trực tiếp của tinh thể Iodine khi nhận nhiệt",
+        explanation: "Iodine là tinh thể phân tử, các phân tử I₂ chỉ liên kết lỏng lẻo với nhau bằng lực Van der Waals. Ngay ở nhiệt độ thường hoặc đun nhẹ, dao động nhiệt đủ thắng lực Van der Waals làm các phân tử bề mặt thoát thẳng ra pha khí mà không cần chảy lỏng."
+      }
+    ];
+
+    // --- Quản lý trạng thái thi & Xáo trộn mã đề ---
+    let currentExamCode = 101;
+    let questionsList = [];
+    let curIndex = 0;
+    let totalScore = 0;
+    let currentStreak = 0;
+    let maxCombo = 0;
+    let currentAnimFrame = null;
+
+    function seededRand(s) {
+      let x = Math.sin(s++) * 10000;
+      return x - Math.floor(x);
+    }
+
+    function shuffle(arr, seed) {
+      const a = [...arr];
+      let s = seed;
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(seededRand(s++) * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function selectCode(code) {
+      currentExamCode = code;
+      document.querySelectorAll('.code-btn').forEach(b => {
+        if (parseInt(b.getAttribute('data-code')) === code) {
+          b.className = 'code-btn py-2 rounded-xl text-xs font-bold border transition bg-indigo-600 border-indigo-400 text-white';
+        } else {
+          b.className = 'code-btn py-2 rounded-xl text-xs font-bold border transition bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700';
+        }
+      });
+      document.getElementById('headerCodeDisplay').innerText = code;
+    }
+
+    function generateExam(code) {
+      let qList = shuffle(QUESTIONS_DATA, code);
+      return qList.map((q, qIdx) => {
+        const origCorrectText = q.options.find(o => o.key === q.correct).text;
+        const shuffledOptions = shuffle(q.options, code + qIdx * 5);
+        const labels = ['A', 'B', 'C', 'D'];
+        let newCorrectKey = 'A';
+        const finalOpts = shuffledOptions.map((opt, oIdx) => {
+          const key = labels[oIdx];
+          if (opt.text === origCorrectText) newCorrectKey = key;
+          return { key, text: opt.text };
+        });
+        return {
+          ...q,
+          options: finalOpts,
+          correct: newCorrectKey
+        };
+      });
+    }
+
+    function startGame() {
+      initAudio();
+      cleanActiveSimulation();
+
+      questionsList = generateExam(currentExamCode);
+      curIndex = 0;
+      totalScore = 0;
+      currentStreak = 0;
+      maxCombo = 0;
+
+      document.getElementById('startScreen').classList.add('hidden');
+      document.getElementById('resultScreen').classList.add('hidden');
+      document.getElementById('gameScreen').classList.remove('hidden');
+      document.getElementById('gameScreen').classList.add('flex');
+
+      updateHUD();
+      renderQuestion();
+    }
+
+    function updateHUD() {
+      document.getElementById('qTracker').innerText = `${curIndex + 1}/${questionsList.length}`;
+      document.getElementById('progBar').style.width = `${(curIndex / questionsList.length) * 100}%`;
+      document.getElementById('scoreVal').innerText = totalScore;
+      document.getElementById('streakVal').innerText = currentStreak;
+    }
+
+    function renderQuestion() {
+      cleanActiveSimulation();
+      const q = questionsList[curIndex];
+      document.getElementById('questionTitle').innerHTML = `<span class="text-cyan-400 font-extrabold mr-1.5">Câu ${curIndex + 1}:</span> ${q.question.replace(/\n/g, '<br>')}`;
+      
+      const wrap = document.getElementById('optionsWrap');
+      wrap.innerHTML = '';
+
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = "opt-btn w-full text-left p-3 md:p-3.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-indigo-500/60 hover:bg-slate-800/60 transition flex items-center gap-3";
+        btn.onclick = () => onSelectOption(opt.key);
+        btn.innerHTML = `
+          <span class="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-slate-300 shrink-0">
+            ${opt.key}
+          </span>
+          <span class="text-xs md:text-sm text-slate-200">${opt.text}</span>
+        `;
+        wrap.appendChild(btn);
+      });
+
+      document.getElementById('simPanel').classList.add('hidden');
+    }
+
+    function onSelectOption(chosenKey) {
+      const q = questionsList[curIndex];
+      const isRight = chosenKey === q.correct;
+
+      const allBtns = document.querySelectorAll('.opt-btn');
+      allBtns.forEach(b => b.disabled = true);
+
+      q.options.forEach((opt, idx) => {
+        const btn = allBtns[idx];
+        if (opt.key === q.correct) {
+          btn.classList.add('border-emerald-500', 'bg-emerald-950/40', 'text-emerald-200');
+          btn.querySelector('span').className = 'w-6 h-6 rounded-lg bg-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center shrink-0';
+          if (isRight) btn.classList.add('correct-anim');
+        } else if (opt.key === chosenKey && !isRight) {
+          btn.classList.add('border-rose-500', 'bg-rose-950/40', 'text-rose-200', 'wrong-anim');
+          btn.querySelector('span').className = 'w-6 h-6 rounded-lg bg-rose-500 text-white font-bold text-xs flex items-center justify-center shrink-0';
+        } else {
+          btn.classList.add('opacity-40');
+        }
+      });
+
+      if (isRight) {
+        currentStreak++;
+        if (currentStreak > maxCombo) maxCombo = currentStreak;
+        totalScore += 100 + Math.min((currentStreak - 1) * 25, 100);
+        soundRight();
+      } else {
+        currentStreak = 0;
+        soundWrong();
+      }
+
+      updateHUD();
+
+      const resLabel = document.getElementById('resultLabel');
+      if (isRight) {
+        resLabel.className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        resLabel.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Chính xác!';
+      } else {
+        resLabel.className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-rose-500/20 text-rose-400 border border-rose-500/30';
+        resLabel.innerHTML = `<i class="fa-solid fa-xmark mr-1"></i> Chưa đúng (Đáp án đúng là ${q.correct})`;
+      }
+
+      document.getElementById('simTopicBadge').innerHTML = `<i class="fa-solid fa-flask text-xs"></i> <span>${q.topicTitle}</span>`;
+      document.getElementById('explainText').innerHTML = q.explanation;
+      document.getElementById('simPanel').classList.remove('hidden');
+
+      // Khởi động mô phỏng riêng biệt
+      dispatchSimulation(q.simType);
+
+      setTimeout(() => {
+        document.getElementById('simPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
+
+    function handleNextQuestion() {
+      curIndex++;
+      if (curIndex < questionsList.length) {
+        renderQuestion();
+        updateHUD();
+      } else {
+        showFinalResult();
+      }
+    }
+
+    function showFinalResult() {
+      cleanActiveSimulation();
+      document.getElementById('progBar').style.width = '100%';
+      document.getElementById('gameScreen').classList.add('hidden');
+      document.getElementById('resultScreen').classList.remove('hidden');
+
+      const correctCount = Math.floor(totalScore / 100);
+      document.getElementById('resCode').innerText = currentExamCode;
+      document.getElementById('resScore').innerText = totalScore;
+      document.getElementById('resCorrect').innerText = `${Math.min(correctCount, 10)}/10`;
+      document.getElementById('resStreak').innerText = maxCombo;
+    }
+
+    function goMenu() {
+      cleanActiveSimulation();
+      document.getElementById('resultScreen').classList.add('hidden');
+      document.getElementById('gameScreen').classList.add('hidden');
+      document.getElementById('startScreen').classList.remove('hidden');
+    }
+
+    function cleanActiveSimulation() {
+      if (currentAnimFrame) {
+        cancelAnimationFrame(currentAnimFrame);
+        currentAnimFrame = null;
+      }
+      const viewer = document.getElementById('simViewer');
+      if (viewer) viewer.innerHTML = '';
+      const ctrl = document.getElementById('simControlsButtons');
+      if (ctrl) ctrl.innerHTML = '';
+      const msg = document.getElementById('simStatusMsg');
+      if (msg) msg.innerHTML = '';
+    }
+
+    // =========================================================================
+    // ĐIỀU HƯỚNG 10 MÔ PHỎNG TƯƠNG TÁC ĐỘNG
+    // =========================================================================
+    function dispatchSimulation(type) {
+      cleanActiveSimulation();
+      const container = document.getElementById('simViewer');
+      const ctrlBox = document.getElementById('simControlsButtons');
+      const statusMsg = document.getElementById('simStatusMsg');
+
+      switch(type) {
+        case 'sim_q1': renderSimQ1(container, ctrlBox, statusMsg); break;
+        case 'sim_q2': renderSimQ2(container, ctrlBox, statusMsg); break;
+        case 'sim_q3': renderSimQ3(container, ctrlBox, statusMsg); break;
+        case 'sim_q4': renderSimQ4(container, ctrlBox, statusMsg); break;
+        case 'sim_q5': renderSimQ5(container, ctrlBox, statusMsg); break;
+        case 'sim_q6': renderSimQ6(container, ctrlBox, statusMsg); break;
+        case 'sim_q7': renderSimQ7(container, ctrlBox, statusMsg); break;
+        case 'sim_q8': renderSimQ8(container, ctrlBox, statusMsg); break;
+        case 'sim_q9': renderSimQ9(container, ctrlBox, statusMsg); break;
+        case 'sim_q10': renderSimQ10(container, ctrlBox, statusMsg); break;
+      }
+    }
+
+    // --- HÀM VẼ ĐÁM MÂY CHUẨN: HẠT NHÂN CỐ ĐỊNH, ĐÁM MÂY BIẾN DẠNG LỆCH TÂM ---
+    function drawCloudUnit(ctx, cx, cy, rX, rY, shiftCenter, label = '+') {
+      ctx.save();
+      // 1. Đám mây electron biến dạng (trọng tâm dời sang cx + shiftCenter)
+      ctx.beginPath();
+      ctx.ellipse(cx + shiftCenter, cy, rX, rY, 0, 0, Math.PI * 2);
+      const grad = ctx.createRadialGradient(cx + shiftCenter * 1.5, cy, 4, cx + shiftCenter, cy, rX);
+      grad.addColorStop(0, '#60a5fa');
+      grad.addColorStop(0.7, 'rgba(59, 130, 246, 0.3)');
+      grad.addColorStop(1, 'rgba(11, 17, 32, 0)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#38bdf8';
+      ctx.stroke();
+
+      // 2. Hạt nhân cố định ở cx (khi đám mây dạt phải, hạt nhân nằm lệch về bên trái)
+      ctx.beginPath();
+      ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+      ctx.fillStyle = '#1e293b';
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#f43f5e';
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, cx, cy);
+      ctx.restore();
+    }
+
+    // --- CÂU 1: LƯỠNG CỰC TẠM THỜI (MÔ PHỎNG ĐƠN NGUYÊN TỬ VỚI HẠT NHÂN LỆCH) ---
+    function renderSimQ1(container, ctrlBox, statusMsg) {
+      const canvas = document.createElement('canvas');
+      canvas.className = 'w-full h-full';
+      container.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+
+      let w = container.clientWidth || 360;
+      let h = container.clientHeight || 260;
+      canvas.width = w; canvas.height = h;
+
+      let step = 0;
+      let deform = 0;
+      let shift = 0;
+      const baseR = 50;
+
+      ctrlBox.innerHTML = `
+        <button id="q1Btn" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs transition">
+          ⚡ Xô Lệch Đám Mây Electron
+        </button>
+        <button id="q1Rst" class="px-2.5 py-1.5 bg-slate-800 text-slate-300 font-bold rounded-lg text-xs transition">
+          ↺ Đặt Lại
+        </button>
+      `;
+
+      statusMsg.innerHTML = "Trạng thái ban đầu: Đám mây electron tròn đều, hạt nhân (+) trùng tâm.";
+
+      document.getElementById('q1Btn').onclick = () => { if (step === 0) step = 1; };
+      document.getElementById('q1Rst').onclick = () => {
+        step = 0; deform = 0; shift = 0;
+        statusMsg.innerHTML = "Trạng thái ban đầu: Đám mây electron tròn đều, hạt nhân (+) trùng tâm.";
+      };
+
+      const cx = w * 0.45;
+      const cy = h * 0.5;
+
+      function loop() {
+        ctx.clearRect(0, 0, w, h);
+
+        if (step === 1) {
+          deform = Math.min(deform + 0.03, 1);
+          shift = deform * 26;
+          if (deform >= 1) {
+            statusMsg.innerHTML = "<strong class='text-amber-300'>Lưỡng cực tạm thời xuất hiện!</strong> Hạt nhân (+) lộ ở đầu trái (δ+), electron dồn sang phải (δ-).";
+          }
+        }
+
+        const rx = baseR + deform * 22;
+        const ry = baseR - deform * 8;
+
+        drawCloudUnit(ctx, cx, cy, rx, ry, shift, '+');
+
+        if (deform > 0.25) {
+          ctx.font = 'bold 13px sans-serif';
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('δ+', cx - 22, cy - 32);
+          ctx.fillStyle = '#f87171';
+          ctx.fillText('δ-', cx + shift + rx * 0.65, cy - 32);
+
+          // Vector khoảng cách lưỡng cực
+          ctx.beginPath();
+          ctx.setLineDash([3, 3]);
+          ctx.strokeStyle = '#facc15';
+          ctx.moveTo(cx, cy + 32);
+          ctx.lineTo(cx + shift, cy + 32);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = '#fef08a';
+          ctx.font = '10px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('Khoảng cách lưỡng cực d', (cx + cx + shift)/2, cy + 46);
+        }
+
+        currentAnimFrame = requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    // --- CÂU 2: LƯỠNG CỰC CẢM ỨNG & LỰC HÚT VAN DER WAALS (CHUẨN 2 HẠT) ---
+    function renderSimQ2(container, ctrlBox, statusMsg) {
+      const canvas = document.createElement('canvas');
+      canvas.className = 'w-full h-full';
+      container.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+
+      let w = container.clientWidth || 360;
+      let h = container.clientHeight || 260;
+      canvas.width = w; canvas.height = h;
+
+      let step = 0;
+      let deform1 = 0, deform2 = 0;
+      let shift1 = 0, shift2 = 0;
+      let approach = 0;
+      const baseR = Math.min(w * 0.12, 45);
+
+      ctrlBox.innerHTML = `
+        <button id="q2Btn" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs transition">
+          ⚡ Tạo Lưỡng Cực Cảm Ứng & Hút Nhau
+        </button>
+        <button id="q2Rst" class="px-2.5 py-1.5 bg-slate-800 text-slate-300 font-bold rounded-lg text-xs transition">
+          ↺ Đặt Lại
+        </button>
+      `;
+
+      statusMsg.innerHTML = "Hai nguyên tử ban đầu ở xa nhau, chưa bị phân cực.";
+
+      document.getElementById('q2Btn').onclick = () => { if (step === 0) step = 1; };
+      document.getElementById('q2Rst').onclick = () => {
+        step = 0; deform1 = 0; deform2 = 0; shift1 = 0; shift2 = 0; approach = 0;
+        statusMsg.innerHTML = "Hai nguyên tử ban đầu ở xa nhau, chưa bị phân cực.";
+      };
+
+      function loop() {
+        ctx.clearRect(0, 0, w, h);
+        const cy = h * 0.5;
+        let x1 = w * 0.3 + approach;
+        let x2 = w * 0.7 - approach;
+
+        if (step === 1) {
+          deform1 = Math.min(deform1 + 0.03, 1);
+          shift1 = deform1 * 16;
+          if (deform1 >= 1) {
+            step = 2;
+            statusMsg.innerHTML = "<strong class='text-amber-300'>Lưỡng cực tạm thời xuất hiện!</strong> Đầu âm (δ-) đẩy electron của nguyên tử thứ 2 dạt ra xa.";
+          }
+        } else if (step === 2) {
+          deform2 = Math.min(deform2 + 0.03, 1);
+          shift2 = deform2 * 16;
+          if (deform2 >= 1) {
+            step = 3;
+            statusMsg.innerHTML = "<strong class='text-emerald-400'>Xuất hiện lực hút Van der Waals!</strong> Hai cực ngược dấu (δ- và δ+) hút nhau.";
+          }
+        } else if (step === 3) {
+          const maxApp = (w * 0.4 - 120) / 2;
+          if (approach < maxApp) approach += 0.8;
+        }
+
+        const rx1 = baseR + deform1 * 18;
+        const ry1 = baseR - deform1 * 6;
+        const rx2 = baseR + deform2 * 18;
+        const ry2 = baseR - deform2 * 6;
+
+        drawCloudUnit(ctx, x1, cy, rx1, ry1, shift1, '+');
+        drawCloudUnit(ctx, x2, cy, rx2, ry2, shift2, '+');
+
+        if (deform1 > 0.3) {
+          ctx.font = 'bold 12px sans-serif';
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('δ+', x1 - 18, cy - 26);
+          ctx.fillStyle = '#f87171';
+          ctx.fillText('δ-', x1 + shift1 + rx1 * 0.65, cy - 26);
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '10px sans-serif';
+          ctx.fillText('Lưỡng cực tạm thời', x1 + shift1 * 0.5, cy + ry1 + 18);
+        }
+
+        if (deform2 > 0.3) {
+          ctx.font = 'bold 12px sans-serif';
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('δ+', x2 - 18, cy - 26);
+          ctx.fillStyle = '#f87171';
+          ctx.fillText('δ-', x2 + shift2 + rx2 * 0.65, cy - 26);
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '10px sans-serif';
+          ctx.fillText('Lưỡng cực cảm ứng', x2 + shift2 * 0.5, cy + ry2 + 18);
+        }
+
+        if (step === 3) {
+          ctx.beginPath();
+          ctx.setLineDash([4, 4]);
+          ctx.strokeStyle = '#fbbf24';
+          ctx.lineWidth = 2.5;
+          ctx.moveTo(x1 + shift1 + rx1 * 0.8, cy);
+          ctx.lineTo(x2 - 14, cy);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = '#fef08a';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('Lực hút van der Waals', (x1 + shift1 + rx1 * 0.8 + x2 - 14) / 2, cy - 12);
+        }
+
+        currentAnimFrame = requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    // --- CÂU 3: MÔ PHỎNG NÉN PISTON ĐO NHIỆT ĐỘ SÔI KHÍ HIẾM ---
+    function renderSimQ3(container, ctrlBox, statusMsg) {
+      const canvas = document.createElement('canvas');
+      canvas.className = 'w-full h-full';
+      container.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+
+      let w = container.clientWidth || 360;
+      let h = container.clientHeight || 260;
+      canvas.width = w; canvas.height = h;
+
+      let selectedGas = 'Ne';
+      let gasData = {
+        'Ne': { bp: -246, e: 10, r: 24, shiftMax: 6, desc: 'Đám mây 10e nhỏ, rất sít sao ➔ Gần như không biến dạng ➔ tsôi thấp nhất (-246°C).' },
+        'Ar': { bp: -186, e: 18, r: 32, shiftMax: 12, desc: '18e ➔ Bắt đầu biến dạng nhẹ ➔ tsôi tăng lên -186°C.' },
+        'Kr': { bp: -153, e: 36, r: 40, shiftMax: 18, desc: '36e ➔ Đám mây xốp hơn, dễ dẹt elip hơn.' },
+        'Xe': { bp: -108, e: 54, r: 48, shiftMax: 26, desc: '54e rất cồng kềnh ➔ Biến dạng cực mạnh ➔ Lực Van der Waals lớn nhất nhóm.' }
+      };
+
+      ctrlBox.innerHTML = `
+        <div class="flex gap-1.5 flex-wrap">
+          <button id="btnNe" class="px-2.5 py-1 bg-cyan-600 text-white rounded text-xs font-bold">Ne</button>
+          <button id="btnAr" class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded text-xs">Ar</button>
+          <button id="btnKr" class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded text-xs">Kr</button>
+          <button id="btnXe" class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded text-xs">Xe</button>
+        </div>
+      `;
+
+      function selectGas(gas) {
+        selectedGas = gas;
+        ['Ne','Ar','Kr','Xe'].forEach(g => {
+          document.getElementById('btn' + g).className = g === gas 
+            ? 'px-2.5 py-1 bg-cyan-600 text-white rounded text-xs font-bold'
+            : 'px-2.5 py-1 bg-slate-800 text-slate-300 rounded text-xs';
+        });
+        statusMsg.innerHTML = gasData[gas].desc;
+      }
+
+      document.getElementById('btnNe').onclick = () => selectGas('Ne');
+      document.getElementById('btnAr').onclick = () => selectGas('Ar');
+      document.getElementById('btnKr').onclick = () => selectGas('Kr');
+      document.getElementById('btnXe').onclick = () => selectGas('Xe');
+      selectGas('Ne');
+
+      let osc = 0;
+      function loop() {
+        ctx.clearRect(0, 0, w, h);
+        osc += 0.05;
+        const cur = gasData[selectedGas];
+
+        const cx1 = w * 0.35;
+        const cx2 = w * 0.65;
+        const cy = h * 0.48;
+
+        const curShift = Math.abs(Math.sin(osc)) * cur.shiftMax;
+        const rx = cur.r + curShift * 0.6;
+        const ry = cur.r - curShift * 0.3;
+
+        drawCloudUnit(ctx, cx1, cy, rx, ry, curShift, selectedGas);
+        drawCloudUnit(ctx, cx2, cy, rx, ry, curShift, selectedGas);
+
+        // Hiển thị thông số
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`Khí Hiếm ${selectedGas} (${cur.e} electron)`, w * 0.5, 24);
+
+        ctx.fillStyle = selectedGas === 'Ne' ? '#34d399' : '#f59e0b';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.fillText(`Nhiệt độ sôi: ${cur.bp}°C`, w * 0.5, h - 20);
+
+        currentAnimFrame = requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    // --- CÂU 4: PHÂN BIỆT PHÂN TỬ ĐỘC LẬP VS MẠNG TINH THỂ ION ---
+    function renderSimQ4(container, ctrlBox, statusMsg) {
+      const canvas = document.createElement('canvas');
+      canvas.className = 'w-full h-full';
+      container.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+
+      let w = container.clientWidth || 360;
+      let h = container.clientHeight || 260;
+      canvas.width = w; canvas.height = h;
+
+      let mode = 'vdw'; // 'vdw' hoặc 'ion'
+      ctrlBox.innerHTML = `
+        <button id="btnVdw" class="px-2.5 py-1.5 bg-indigo-600 text-white rounded-lg font-bold text-xs">Phân Tử (Van der Waals)</button>
+        <button id="btnIon" class="px-2.5 py-1.5 bg-slate-800 text-slate-300 rounded-lg text-xs">Mạng Tinh Thể Ion (NaCl)</button>
+      `;
+
+      document.getElementById('btnVdw').onclick = () => {
+        mode = 'vdw';
+        document.getElementById('btnVdw').className = 'px-2.5 py-1.5 bg-indigo-600 text-white rounded-lg font-bold text-xs';
+        document.getElementById('btnIon').className = 'px-2.5 py-1.5 bg-slate-800 text-slate-300 rounded-lg text-xs';
+        statusMsg.innerHTML = "Tương tác Van der Waals chỉ liên kết giữa các phân tử trung hòa riêng biệt.";
+      };
+      document.getElementById('btnIon').onclick = () => {
+        mode = 'ion';
+        document.getElementById('btnIon').className = 'px-2.5 py-1.5 bg-indigo-600 text-white rounded-lg font-bold text-xs';
+        document.getElementById('btnVdw').className = 'px-2.5 py-1.5 bg-slate-800 text-slate-300 rounded-lg text-xs';
+        statusMsg.innerHTML = "Tinh thể ion liên kết trực tiếp bằng lực Coulomb giữa ion dương và ion âm (không phải Van der Waals).";
+      };
+
+      document.getElementById('btnVdw').click();
+
+      function loop() {
+        ctx.clearRect(0, 0, w, h);
+        const cy = h * 0.5;
+
+        if (mode === 'vdw') {
+          drawCloudUnit(ctx, w * 0.32, cy, 40, 36, 12, 'O₂');
+          drawCloudUnit(ctx, w * 0.68, cy, 40, 36, 12, 'O₂');
+
+          ctx.beginPath();
+          ctx.setLineDash([3, 3]);
+          ctx.strokeStyle = '#fbbf24';
+          ctx.lineWidth = 2;
+          ctx.moveTo(w * 0.32 + 50, cy);
+          ctx.lineTo(w * 0.68 - 14, cy);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = '#fef08a';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('Lực Van der Waals gian phân tử', w * 0.5, cy - 14);
+        } else {
+          // Vẽ lưới tinh thể ion NaCl
+          const ions = [
+            { x: w * 0.32, y: cy - 35, r: 16, t: 'Na⁺', c: '#a855f7' },
+            { x: w * 0.5, y: cy - 35, r: 22, t: 'Cl⁻', c: '#10b981' },
+            { x: w * 0.68, y: cy - 35, r: 16, t: 'Na⁺', c: '#a855f7' },
+            { x: w * 0.32, y: cy + 35, r: 22, t: 'Cl⁻', c: '#10b981' },
+            { x: w * 0.5, y: cy + 35, r: 16, t: 'Na⁺', c: '#a855f7' },
+            { x: w * 0.68, y: cy + 35, r: 22, t: 'Cl⁻', c: '#10b981' }
+          ];
+          ions.forEach(ion => {
+            ctx.beginPath();
+            ctx.arc(ion.x, ion.y, ion.r, 0, Math.PI * 2);
+            ctx.fillStyle = ion.c;
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(ion.t, ion.x, ion.y);
+          });
+          ctx.fillStyle = '#f87171';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('Mạng tinh thể ion - Liên kết hóa học rất bền', w * 0.5, 25);
+        }
+
+        currentAnimFrame = requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    // --- CÂU 5: NGUYÊN TỬ HELI (He) - QUỸ ĐẠO ELECTRON VÀ SỰ LỆCH TÂM ---
+    function renderSimQ5(container, ctrlBox, statusMsg) {
+      const canvas = document.createElement('canvas');
+      canvas.className = 'w-full h-full';
+      container.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+
+      let w = container.clientWidth || 360;
+      let h = container.clientHeight || 260;
+      canvas.width = w; canvas.height = h;
+
+      let angle = 0;
+      let isPaused = false;
+
+      ctrlBox.innerHTML = `
+        <button id="q5Btn" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs transition">
+          Dừng Lại / Quan Sát Lưỡng Cực Tức Thời
+        </button>
+      `;
+
+      statusMsg.innerHTML = "2 electron của Heli đang chuyển động quanh hạt nhân cố định (+2)...";
+
+      document.getElementById('q5Btn').onclick = () => {
+        isPaused = !isPaused;
+        statusMsg.innerHTML = isPaused 
+          ? "<strong class='text-amber-300'>Khoảnh khắc bất đối xứng!</strong> Cả 2 electron dồn sang một phía ➔ Hạt nhân bên kia lộ ra thành cực δ+."
+          : "2 electron tiếp tục chuyển động...";
+      };
+
+      const cx = w * 0.5;
+      const cy = h * 0.5;
+
+      function loop() {
+        ctx.clearRect(0, 0, w, h);
+        if (!isPaused) angle += 0.05;
+
+        // Quỹ đạo
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, 60, 40, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+        ctx.setLineDash([3, 3]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Hạt nhân Heli (+2) cố định
+        ctx.beginPath();
+        ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+        ctx.fillStyle = '#1e293b';
+        ctx.fill();
+        ctx.strokeStyle = '#f43f5e';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('+2 (He)', cx, cy);
+
+        // Vị trí 2 electron
+        const e1x = cx + Math.cos(angle) * 60;
+        const e1y = cy + Math.sin(angle) * 40;
+        const e2x = cx + Math.cos(angle + 0.9) * 55;
+        const e2y = cy + Math.sin(angle + 0.9) * 35;
+
+        [ {x: e1x, y: e1y}, {x: e2x, y: e2y} ].forEach(e => {
+          ctx.beginPath();
+          ctx.arc(e.x, e.y, 5, 0, Math.PI * 2);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fill();
+          ctx.fillText('e⁻', e.x, e.y - 8);
+        });
+
+        if (isPaused) {
+          const avgEx = (e1x + e2x) / 2;
+          const avgEy = (e1y + e2y) / 2;
+          ctx.fillStyle = '#f87171';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('Đầu δ-', avgEx, avgEy + 14);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('Đầu δ+', cx - (avgEx - cx) * 0.8, cy - (avgEy - cy) * 0.8);
+        }
+
+        currentAnimFrame = requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    // --- CÂU 6: SO SÁNH 4 HALOGEN VÀ ĐỘ BIẾN DẠNG ELIP CỦA I₂ ---
+    function renderSimQ6(container, ctrlBox, statusMsg) {
+      statusMsg.innerHTML = "I₂ có 106 electron nên lực Van der Waals mạnh nhất, biến thành thể rắn ở nhiệt độ thường.";
+      ctrlBox.innerHTML = `<span class="text-xs text-slate-400">4 đơn chất Halogen điển hình</span>`;
+
+      container.innerHTML = `
+        <div class="grid grid-cols-4 gap-2 w-full h-full p-3 items-end">
+          <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 text-center flex flex-col justify-end h-52">
+            <div class="h-20 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center p-1">
+              <span class="text-[10px] text-yellow-300 font-bold">Khí (-188°C)</span>
+            </div>
+            <span class="text-xs font-black text-slate-300 mt-2">F₂ (18e)</span>
+          </div>
+
+          <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 text-center flex flex-col justify-end h-52">
+            <div class="h-24 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center p-1">
+              <span class="text-[10px] text-emerald-300 font-bold">Khí (-34°C)</span>
+            </div>
+            <span class="text-xs font-black text-emerald-400 mt-2">Cl₂ (34e)</span>
+          </div>
+
+          <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 text-center flex flex-col justify-end h-52">
+            <div class="h-28 rounded-lg bg-amber-700/30 border border-amber-600/50 flex flex-col justify-end p-1">
+              <div class="h-8 bg-amber-600/80 rounded-b"></div>
+              <span class="text-[9px] text-amber-300 font-bold mt-1">Lỏng (59°C)</span>
+            </div>
+            <span class="text-xs font-black text-amber-400 mt-2">Br₂ (70e)</span>
+          </div>
+
+          <div class="bg-purple-950/40 p-2 rounded-xl border border-purple-500 text-center flex flex-col justify-end h-52 shadow-lg shadow-purple-500/20">
+            <div class="h-36 rounded-lg bg-purple-900/50 border border-purple-400 flex flex-col justify-end p-1">
+              <div class="h-12 bg-purple-700 rounded-b flex items-center justify-center text-[10px] font-bold text-white">Thể Rắn</div>
+              <span class="text-[9px] text-purple-300 font-bold mt-1">Sôi: 184°C</span>
+            </div>
+            <span class="text-xs font-black text-purple-300 mt-2">I₂ (106e) ★</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- CÂU 7: THỬ NGHIỆM ĐO NĂNG LƯỢNG BẺ GÃY LIÊN KẾT (kJ/mol) ---
+    function renderSimQ7(container, ctrlBox, statusMsg) {
+      statusMsg.innerHTML = "Bấm 'Kéo Thử' để kiểm tra năng lượng cần dùng để bẻ gãy từng loại liên kết.";
+      ctrlBox.innerHTML = `
+        <button id="q7PullBtn" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-xs transition">
+          ⚙️ Kéo Đứt Liên Kết
+        </button>
+      `;
+
+      container.innerHTML = `
+        <div class="w-full h-full p-4 flex flex-col justify-around text-xs">
+          <div class="flex items-center gap-3">
+            <span class="w-24 font-bold text-rose-400">1. Liên kết Ion</span>
+            <div class="flex-1 bg-slate-800 h-4 rounded-full overflow-hidden p-0.5 border border-slate-700">
+              <div id="barIon" class="bg-rose-500 h-full rounded-full transition-all duration-700" style="width: 100%"></div>
+            </div>
+            <span class="w-20 text-[11px] text-rose-300 font-bold text-right" id="txtIon">Rất bền</span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="w-24 font-bold text-amber-400">2. Cộng hóa trị</span>
+            <div class="flex-1 bg-slate-800 h-4 rounded-full overflow-hidden p-0.5 border border-slate-700">
+              <div id="barCHT" class="bg-amber-500 h-full rounded-full transition-all duration-700" style="width: 75%"></div>
+            </div>
+            <span class="w-20 text-[11px] text-amber-300 font-bold text-right" id="txtCHT">Khó đứt</span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="w-24 font-bold text-cyan-400">3. Hydrogen</span>
+            <div class="flex-1 bg-slate-800 h-4 rounded-full overflow-hidden p-0.5 border border-slate-700">
+              <div id="barH" class="bg-cyan-500 h-full rounded-full transition-all duration-700" style="width: 25%"></div>
+            </div>
+            <span class="w-20 text-[11px] text-cyan-300 font-bold text-right" id="txtH">Trung bình</span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="w-24 font-bold text-purple-400">4. Van der Waals</span>
+            <div class="flex-1 bg-slate-800 h-4 rounded-full overflow-hidden p-0.5 border border-slate-700">
+              <div id="barVDW" class="bg-purple-500 h-full rounded-full transition-all duration-700" style="width: 8%"></div>
+            </div>
+            <span class="w-20 text-[11px] text-purple-300 font-bold text-right" id="txtVDW">Yếu nhất</span>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('q7PullBtn').onclick = () => {
+        document.getElementById('barVDW').style.width = '0%';
+        document.getElementById('txtVDW').innerHTML = "<span class='text-red-400'>ĐÃ ĐỨT!</span>";
+        setTimeout(() => {
+          document.getElementById('barH').style.width = '0%';
+          document.getElementById('txtH').innerHTML = "<span class='text-red-400'>ĐÃ ĐỨT!</span>";
+        }, 300);
+      };
+    }
+
+    // --- CÂU 8: NHIỆT NĂNG PHÁ VỠ LỰC VAN DER WAALS KHI SÔI ---
+    function renderSimQ8(container, ctrlBox, statusMsg) {
+      const canvas = document.createElement('canvas');
+      canvas.className = 'w-full h-full';
+      container.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+
+      let w = container.clientWidth || 360;
+      let h = container.clientHeight || 260;
+      canvas.width = w; canvas.height = h;
+
+      let temp = 25;
+      ctrlBox.innerHTML = `
+        <button id="q8Heat" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold text-xs">
+          🔥 Đun Nóng (+30°C)
+        </button>
+        <button id="q8Cool" class="px-2.5 py-1.5 bg-slate-800 text-slate-300 rounded-lg text-xs">
+          ❄️ Hạ Nhiệt
+        </button>
+      `;
+
+      document.getElementById('q8Heat').onclick = () => {
+        temp = Math.min(temp + 35, 125);
+        updateStatus();
+      };
+      document.getElementById('q8Cool').onclick = () => {
+        temp = Math.max(temp - 35, 20);
+        updateStatus();
+      };
+
+      function updateStatus() {
+        if (temp > 80) {
+          statusMsg.innerHTML = `<strong class="text-rose-400">Động năng vượt qua lực Van der Waals!</strong> Các phân tử bứt khỏi thể lỏng thành thể hơi tự do.`;
+        } else {
+          statusMsg.innerHTML = `Nhiệt độ hiện tại: <strong>${temp}°C</strong>. Lực Van der Waals vẫn giữ các phân tử ở thể lỏng.`;
+        }
+      }
+      updateStatus();
+
+      const mols = [];
+      for (let i = 0; i < 14; i++) {
+        mols.push({
+          x: Math.random() * (w - 40) + 20,
+          y: (h * 0.5) + Math.random() * (h * 0.4 - 10),
+          vx: (Math.random() - 0.5) * 1.2,
+          vy: (Math.random() - 0.5) * 1.2,
+          r: 8
+        });
+      }
+
+      function loop() {
+        ctx.clearRect(0, 0, w, h);
+        const speed = temp / 25;
+
+        if (temp <= 80) {
+          ctx.fillStyle = 'rgba(30, 41, 59, 0.4)';
+          ctx.fillRect(0, h * 0.4, w, h * 0.6);
+          ctx.strokeStyle = '#38bdf8';
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(0, h * 0.4);
+          ctx.lineTo(w, h * 0.4);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        mols.forEach(p => {
+          p.x += p.vx * speed;
+          p.y += p.vy * speed;
+
+          if (temp <= 80 && p.y < h * 0.42) { p.y = h * 0.42; p.vy *= -1; }
+          if (p.x < p.r || p.x > w - p.r) p.vx *= -1;
+          if (p.y > h - p.r) { p.y = h - p.r; p.vy *= -1; }
+          if (temp > 80 && p.y < p.r) { p.y = p.r; p.vy *= -1; }
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = temp > 80 ? '#f43f5e' : '#38bdf8';
+          ctx.fill();
+        });
+
+        currentAnimFrame = requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    // --- CÂU 9: PHÓNG ĐẠI NANOMET LÔNG CHÂN TẮC KÈ ÉP SÁT MẶT KÍNH ---
+    function renderSimQ9(container, ctrlBox, statusMsg) {
+      statusMsg.innerHTML = "Hàng triệu sợi lông siêu vi nanomet miết sát bề mặt kính tạo lực Van der Waals khổng lồ.";
+      ctrlBox.innerHTML = `
+        <button id="q9ZoomBtn" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-xs transition">
+          🔬 Nhấn Để Tiếp Xúc Mặt Kính
+        </button>
+      `;
+
+      container.innerHTML = `
+        <div class="w-full h-full p-4 flex flex-col justify-between items-center text-center">
+          <div class="text-xs text-slate-300">
+            Mặt cắt: <strong>Lông siêu vi nanomet của tắc kè</strong> ép sát mặt kính
+          </div>
+
+          <div class="w-full max-w-xs relative my-auto">
+            <div class="h-6 bg-cyan-950/80 border border-cyan-400/60 rounded-md flex items-center justify-center text-[10px] text-cyan-300 font-bold mb-8">
+              Bề mặt kính phẳng nhẵn (SiO₂)
+            </div>
+
+            <div id="setaeContainer" class="flex justify-around transition-all duration-500 transform translate-y-6">
+              <div class="w-3 h-12 bg-amber-500/80 rounded-t-full border-t border-amber-300"></div>
+              <div class="w-3 h-12 bg-amber-500/80 rounded-t-full border-t border-amber-300"></div>
+              <div class="w-3 h-12 bg-amber-500/80 rounded-t-full border-t border-amber-300"></div>
+              <div class="w-3 h-12 bg-amber-500/80 rounded-t-full border-t border-amber-300"></div>
+              <div class="w-3 h-12 bg-amber-500/80 rounded-t-full border-t border-amber-300"></div>
+            </div>
+
+            <div id="vdwLines" class="hidden absolute top-7 left-0 w-full text-center text-amber-300 text-xs font-bold animate-pulse">
+              &uarr;&uarr; Lực hút Van der Waals (&lt; 0.4 nm) &uarr;&uarr;
+            </div>
+          </div>
+
+          <div class="text-[11px] text-emerald-400 bg-slate-900/90 px-3 py-1.5 rounded-lg border border-slate-800" id="q9ResultText">
+            Khoảng cách còn xa: Chưa xuất hiện lực hút Van der Waals.
+          </div>
+        </div>
+      `;
+
+      let pressed = false;
+      document.getElementById('q9ZoomBtn').onclick = () => {
+        pressed = !pressed;
+        const setae = document.getElementById('setaeContainer');
+        const lines = document.getElementById('vdwLines');
+        const res = document.getElementById('q9ResultText');
+
+        if (pressed) {
+          setae.style.transform = 'translateY(-22px)';
+          lines.classList.remove('hidden');
+          res.innerHTML = "<strong>Đã bám dính!</strong> Hàng triệu sợi lông tiếp xúc ở cấp độ nanomet phát sinh lực Van der Waals nâng được cơ thể!";
+        } else {
+          setae.style.transform = 'translateY(24px)';
+          lines.classList.add('hidden');
+          res.innerText = "Đã nhấc chân: Lực hút giảm về 0.";
+        }
+      };
+    }
+
+    // --- CÂU 10: THĂNG HOA TRỰC TIẾP TINH THỂ IODINE ---
+    function renderSimQ10(container, ctrlBox, statusMsg) {
+      statusMsg.innerHTML = "Dao động nhiệt bứt các phân tử I₂ trực tiếp từ tinh thể rắn thành làn khói tím.";
+      ctrlBox.innerHTML = `
+        <button id="q10SublimeBtn" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold text-xs transition">
+          🟣 Đun Nhẹ Tinh Thể Iodine
+        </button>
+      `;
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'w-full h-full';
+      container.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+
+      let w = container.clientWidth || 360;
+      let h = container.clientHeight || 260;
+      canvas.width = w; canvas.height = h;
+
+      let isHeating = false;
+      document.getElementById('q10SublimeBtn').onclick = () => { isHeating = true; };
+
+      const vapors = [];
+
+      function loop() {
+        ctx.clearRect(0, 0, w, h);
+
+        ctx.fillStyle = '#3b0764';
+        ctx.fillRect(w * 0.25, h - 35, w * 0.5, 25);
+        ctx.strokeStyle = '#a855f7';
+        ctx.strokeRect(w * 0.25, h - 35, w * 0.5, 25);
+        ctx.fillStyle = '#e9d5ff';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Tinh Thể I₂ (Thể Rắn)', w * 0.5, h - 18);
+
+        if (isHeating) {
+          if (Math.random() < 0.4) {
+            vapors.push({
+              x: w * 0.3 + Math.random() * (w * 0.4),
+              y: h - 40,
+              vy: 0.8 + Math.random() * 1.5,
+              alpha: 0.9,
+              size: 4 + Math.random() * 5
+            });
+          }
+        }
+
+        for (let i = vapors.length - 1; i >= 0; i--) {
+          const v = vapors[i];
+          v.y -= v.vy;
+          v.alpha -= 0.006;
+
+          ctx.beginPath();
+          ctx.arc(v.x, v.y, v.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(168, 85, 247, ${Math.max(v.alpha, 0)})`;
+          ctx.fill();
+
+          if (v.alpha <= 0) vapors.splice(i, 1);
+        }
+
+        if (isHeating && vapors.length > 5) {
+          ctx.fillStyle = '#d8b4fe';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('Hơi Iodine Màu Tím Bay Lên (Thăng Hoa)', w * 0.5, h * 0.35);
+        }
+
+        currentAnimFrame = requestAnimationFrame(loop);
+      }
+      loop();
+    }
+  </script>
+</body>
+</html>
